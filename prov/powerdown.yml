@@ -1,0 +1,12 @@
+---
+
+- import_playbook: reset.yml
+
+- hosts: k8s-cluster
+  gather_facts: no
+  become: yes
+  tasks:
+    - name: Powerdown Nodes
+      shell: sleep 2 && shutdown -h now
+      async: 10
+      poll: 0

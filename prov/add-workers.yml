@@ -1,0 +1,22 @@
+---
+
+- hosts: "{{ nodes | default('worker') }}"
+  tasks:
+    - block:
+      - name: Create token for joining
+        command: kubeadm token create
+        register: token
+        become: yes
+
+      - name: Generate SHA256 hash
+        shell: "openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'"
+        register: token_hash
+      delegate_to: "{{ groups['master'][0] }}"
+
+    - name: join master
+      command: kubeadm join {{ groups['master'][0] }}:6443 --token {{ token.stdout }} --discovery-token-ca-cert-hash sha256:{{ token_hash.stdout }}
+      become: yes
+
+    - name: Add 'worker' label to the node
+      command: kubectl label node {{ ansible_hostname }} node-role.kubernetes.io/worker=worker
+      delegate_to: "{{ groups['master'][0] }}"

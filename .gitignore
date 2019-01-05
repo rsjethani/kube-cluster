@@ -7,3 +7,10 @@ terraform.tfstate*
 
 # Ansible related
 *.retry
+inventory
+
+# Python related
+__pycache__/
+*.py[cod]
+*$py.class
+

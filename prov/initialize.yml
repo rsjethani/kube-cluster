@@ -1,0 +1,52 @@
+---
+
+- hosts: k8s-cluster
+  any_errors_fatal: true
+  tasks:
+    - name: change host name
+      shell: hostname {{ host_name }} && echo {{ host_name }} > /etc/hostname
+      become: yes
+
+    - name: get product uuid value
+      command: "cat /sys/class/dmi/id/product_uuid"
+      register: product_uuid
+      become: yes
+
+    - name: Create a list of UUIDs of all hosts in the cluster
+      set_fact: uuids={{ groups['all']|map('extract', hostvars, ['product_uuid', 'stdout'])|list }}
+      run_once: yes
+
+    - name: Verify product UUIDs are unique for each node
+      fail: msg="Product UUIDs on nodes are not unique"
+      when: uuids|unique != uuids
+      run_once: yes
+
+    - name: Initiate cluster creation
+      command: kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address={{ inventory_hostname }}
+      when: inventory_hostname == groups['master'][0]
+      become: yes
+
+    - name: create kubeconfig dir for normal user
+      file:
+        path: "/home/{{ ansible_user }}/.kube"
+        state: directory
+      when: inventory_hostname == groups['master'][0]
+
+      # cannot use `copy` here. See Bug: https://github.com/ansible/ansible/issues/21145
+    - name: copy admin.conf to current user config directory
+      shell: "cp -v /etc/kubernetes/admin.conf /home/{{ ansible_user }}/.kube/config; chown -R {{ ansible_user }}: /home/{{ ansible_user }}/.kube"
+      when: inventory_hostname == groups['master'][0]
+      become: yes
+
+    - name: Configure Calico
+      command: kubectl apply -f {{ item }}
+      loop:
+        - https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
+        - https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
+      when: inventory_hostname == groups['master'][0]
+    
+#    - name: Wait for basic Pods to come up
+#      pause:
+#        prompt: Waiting for basic pods to come up
+#        minutes: 1
+

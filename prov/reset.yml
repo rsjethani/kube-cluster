@@ -1,0 +1,17 @@
+---
+
+- hosts: "{{ nodes | default('k8s-cluster') }}"
+  tasks:
+    - block:
+      - name: Drain the node
+        command: kubectl drain {{ host_name }} --delete-local-data --force --ignore-daemonsets
+        ignore_errors: yes
+
+      - name: Delete node from cluster
+        command: kubectl delete node {{ host_name }}
+        ignore_errors: yes
+      delegate_to: "{{groups['master'][0]}}"
+
+    - name: Reset Node
+      command: kubeadm reset -f
+      become: yes
