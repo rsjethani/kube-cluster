@@ -1,0 +1,9 @@
+*.pem
+*.pub
+
+# Terraform related
+terraform.tfstate*
+.terraform/
+
+# Ansible related
+*.retry
