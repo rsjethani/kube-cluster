@@ -1,6 +1,7 @@
 ---
 
 - hosts: "{{ nodes | default('worker') }}"
+  name: Add worker(s)
   tasks:
     - block:
       - name: Create token for joining

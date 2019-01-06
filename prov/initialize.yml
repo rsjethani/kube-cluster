@@ -1,6 +1,7 @@
 ---
 
 - hosts: k8s-cluster
+  name: Initialize K8s cluster nodes
   any_errors_fatal: true
   tasks:
     - name: change host name
@@ -44,9 +45,4 @@
         - https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
         - https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
       when: inventory_hostname == groups['master'][0]
-    
-#    - name: Wait for basic Pods to come up
-#      pause:
-#        prompt: Waiting for basic pods to come up
-#        minutes: 1
 

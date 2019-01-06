@@ -3,6 +3,7 @@
 - import_playbook: reset.yml
 
 - hosts: k8s-cluster
+  name: Powerdown clustewr nodes
   gather_facts: no
   become: yes
   tasks:

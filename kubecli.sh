@@ -57,7 +57,6 @@ perform_create() {
 	cd -
 
 	$UTILS/generate_inventory.py $INFRA/terraform.tfstate $PROV/inventory
-	exit
 
 	cd $PROV
 	set +e
