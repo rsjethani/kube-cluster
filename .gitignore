@@ -4,6 +4,8 @@
 # Terraform related
 terraform.tfstate*
 .terraform/
+infra.tfvars
+*plan*
 
 # Ansible related
 *.retry
