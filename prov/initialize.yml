@@ -46,3 +46,13 @@
         - https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
       when: inventory_hostname == groups['master'][0]
 
+
+- hosts: master[0]
+  name: Copy K8s cluster's admin.conf to localhost
+  gather_facts: no
+  tasks:
+    - fetch:
+        src: /etc/kubernetes/admin.conf
+        dest: ./
+        flat: yes
+      become: yes

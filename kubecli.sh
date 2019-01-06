@@ -42,6 +42,7 @@ perform_initialize() {
 	set -e
 	cd $PROV
 	ansible-playbook -v -i inventory initialize.yml
+	mv -v $PROV/admin.conf $CLSTR_ROOT_DIR
 	ansible-playbook -v -i inventory add-workers.yml
 	cd -
 	set +e

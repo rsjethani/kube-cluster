@@ -2,6 +2,7 @@
 
 - hosts: "{{ nodes | default('k8s-cluster') }}"
   name: Reset K8s cluster
+  gather_facts: no
   tasks:
     - block:
       - name: Drain the node
